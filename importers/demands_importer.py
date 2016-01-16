@@ -6,7 +6,7 @@ class DemandsImporter:
     self.path = os.path.join(os.path.dirname(__file__), path)
 
   def process(self, cities):
-    self.demands = [0 for x in range(len(cities) - 1)]
+    self.demands = [0 for x in range(len(cities))]
     with open(self.path, 'rb') as file:
       reader = csv.reader(file, delimiter = ';')
       file.next()

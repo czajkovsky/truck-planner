@@ -9,7 +9,7 @@ class Importer:
 
   def process(self):
     citiesData = self.cities.process()
-    demandsData = self.demands.process(citiesData['cities'])
+    demandsData = self.demands.process(citiesData['cities'][1:])
     return {
       'cities': citiesData['cities'],
       'distances': citiesData['distances'],
