@@ -6,3 +6,4 @@ importer = Importer()
 data = importer.process()
 print data['cities']
 print data['distances']
+print data['demands']

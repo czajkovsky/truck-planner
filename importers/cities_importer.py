@@ -13,7 +13,6 @@ class CitiesImporter:
     self.assignDistances()
     for i in range(len(self.cities)):
       self.distances[i][i] = 0.0
-    print self.distances
     return { 'cities': self.cities, 'distances': self.distances }
 
   def citiesArray(self):
