@@ -14,7 +14,7 @@ class World:
 
     truckNames = ['Transit', 'TIR']
     truckCapacities = [10, 20]
-    truckRates = [1.0, 2.0]
+    truckRates = [1.1, 2.0]
     trucks = range(len(truckNames))
 
     capacity = 20
@@ -65,6 +65,9 @@ class World:
       for j in clients:
         if i != j:
           model.addConstr(u[i] - u[j] + capacity * x[i, j] <= capacity - self.demands[j - 1])
+
+    for i in clients:
+      model.addConstr(u[i] <= quicksum(t[i, 0, ti] * truckCapacities[ti] for ti in trucks))
 
     model.optimize()
 
