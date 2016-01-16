@@ -14,7 +14,7 @@ class World:
 
     truckNames = ['Transit', 'TIR']
     truckCapacities = [10, 20]
-    truckRates = [2, 1.7]
+    truckRates = [1.0, 2.0]
     trucks = range(len(truckNames))
 
     capacity = 20
