@@ -22,13 +22,12 @@ class World:
     model = Model('Diesel Fuel Delivery')
 
     x = {} # communication from i -> j
-    t = {} # truck t on route i -> j
+    t = {} # truck tt on route i -> j t[i, j, ti]
 
     for i in sites:
       for j in sites:
         x[i, j] = model.addVar(vtype = GRB.BINARY)
         for k in trucks:
-          print 'x'
           t[i, j, k] = model.addVar(vtype = GRB.BINARY)
 
     print t
@@ -53,10 +52,8 @@ class World:
       model.addConstr(quicksum(x[i, j] for j in sites if i != j) == 1)
 
     for i in sites:
-      model.addConstr(quicksum(t[i, j, ti] for j in sites for ti in trucks if i != j) == 1)
-
-    for j in sites:
-      model.addConstr(quicksum(t[i, j, ti] for i in sites for ti in trucks if i != j) == 1)
+      for j in sites:
+        model.addConstr(quicksum(t[i, j, ti] for ti in trucks if i != j) == x[i,j])
 
     for i in clients:
       model.addConstr(u[i] <= capacity + (self.demands[i - 1] - capacity) * x[0, i])
@@ -64,12 +61,31 @@ class World:
     for i in clients:
       for j in clients:
         if i != j:
-          model.addConstr(u[i] - u[j] + capacity * x[i, j] <= capacity - self.demands[j - 1])
+          c = quicksum(t[0, i, ti] * truckCapacities[ti] for ti in trucks)
+          model.addConstr(u[i] - u[j] + c * x[i, j] <= c - self.demands[j - 1])
 
     for i in clients:
-      model.addConstr(u[i] <= quicksum(t[i, 0, ti] * truckCapacities[ti] for ti in trucks))
+      for j in clients:
+        if i != j:
+          model.addConstr(u[i] * x[i, j] <= quicksum(t[i, 0, ti] * truckCapacities[ti] for ti in trucks))
+          model.addConstr(u[i] * x[j, i] <= quicksum(t[i, 0, ti] * truckCapacities[ti] for ti in trucks))
+      model.addConstr(u[i] * x[i, 0] <= quicksum(t[i, 0, ti] * truckCapacities[ti] for ti in trucks))
+      model.addConstr(u[i] * x[0, i] <= quicksum(t[0, i, ti] * truckCapacities[ti] for ti in trucks))
 
     model.optimize()
+
+    for i in sites:
+      for j in sites:
+        for ti in trucks:
+          if t[i,j,ti].X > 0.5:
+            print self.citiesNames[i], '->', self.citiesNames[j], ':', truckNames[ti]
+
+    print '\n\n'
+
+    for i in sites:
+      for j in sites:
+        if x[i,j].X > 0.5:
+          print self.citiesNames[i], '->', self.citiesNames[j], ':exists'
 
     def printTour(start, visited, distance):
       sys.stdout.write(self.citiesNames[start] + ' -> ')
