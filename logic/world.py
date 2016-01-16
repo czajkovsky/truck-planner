@@ -14,24 +14,36 @@ class World:
 
     truckNames = ['Transit', 'TIR']
     truckCapacities = [10, 20]
-    truckRates = [1.15, 1.7]
+    truckRates = [2, 1.7]
+    trucks = range(len(truckNames))
 
     capacity = 20
 
     model = Model('Diesel Fuel Delivery')
 
-    x = {}
+    x = {} # communication from i -> j
+    t = {} # truck t on route i -> j
+
     for i in sites:
       for j in sites:
-        x[i,j] = model.addVar(vtype = GRB.BINARY)
+        x[i, j] = model.addVar(vtype = GRB.BINARY)
+        for k in trucks:
+          print 'x'
+          t[i, j, k] = model.addVar(vtype = GRB.BINARY)
+
+    print t
 
     u = {}
     for i in clients:
-      u[i] = model.addVar(lb = self.demands[i - 1], ub = capacity) # OK
+      u[i] = model.addVar(lb = self.demands[i - 1], ub = capacity)
 
     model.update()
 
-    obj = quicksum(self.distances[i][j] * x[i,j] for i in sites for j in sites if i != j)
+    obj = quicksum(
+      self.distances[i][j] * x[i,j] * t[i, j, ti] * truckRates[ti] for i in sites for j in sites for ti in trucks if i != j
+    )
+
+    print obj;
     model.setObjective(obj)
 
     for j in clients:
@@ -39,6 +51,12 @@ class World:
 
     for i in clients:
       model.addConstr(quicksum(x[i, j] for j in sites if i != j) == 1)
+
+    for i in sites:
+      model.addConstr(quicksum(t[i, j, ti] for j in sites for ti in trucks if i != j) == 1)
+
+    for j in sites:
+      model.addConstr(quicksum(t[i, j, ti] for i in sites for ti in trucks if i != j) == 1)
 
     for i in clients:
       model.addConstr(u[i] <= capacity + (self.demands[i - 1] - capacity) * x[0, i])
