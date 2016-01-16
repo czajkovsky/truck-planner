@@ -74,25 +74,16 @@ class World:
 
     model.optimize()
 
-    for i in sites:
-      for j in sites:
-        for ti in trucks:
-          if t[i,j,ti].X > 0.5:
-            print self.citiesNames[i], '->', self.citiesNames[j], ':', truckNames[ti]
-
-    print '\n\n'
-
-    for i in sites:
-      for j in sites:
-        if x[i,j].X > 0.5:
-          print self.citiesNames[i], '->', self.citiesNames[j], ':exists'
-
     def printTour(start, visited, distance):
       sys.stdout.write(self.citiesNames[start] + ' -> ')
       for i in sites:
         if (x[start, i].X > 0.5) & (start != i):
           if (i == 0):
-            print 'FACTORY, distance:', distance + self.distances[start][i]
+            truckId = -1
+            for ti in trucks:
+              if (t[start,i,ti].X > 0.5):
+                truckId = ti
+            print 'FACTORY, distance:', distance + self.distances[start][i], 'TRUCK:', truckNames[truckId]
             return
           printTour(i, visited, distance + self.distances[start][i])
 
