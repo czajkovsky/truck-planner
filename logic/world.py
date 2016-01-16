@@ -12,7 +12,11 @@ class World:
     sites = range(len(self.citiesNames))
     clients = sites[1:]
 
-    capacity = 4500
+    truckNames = ['Transit', 'TIR']
+    truckCapacities = [10, 20]
+    truckRates = [1.15, 1.7]
+
+    capacity = 20
 
     model = Model('Diesel Fuel Delivery')
 
@@ -23,7 +27,6 @@ class World:
 
     u = {}
     for i in clients:
-      print self.demands[i - 1]
       u[i] = model.addVar(lb = self.demands[i - 1], ub = capacity) # OK
 
     model.update()

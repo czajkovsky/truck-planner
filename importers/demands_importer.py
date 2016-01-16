@@ -12,4 +12,4 @@ class DemandsImporter:
       file.next()
       for row in reader:
         self.demands[cities.index(row[0])] = int(row[1])
-    return { 'demands': self.demands }
+    return self.demands
