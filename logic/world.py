@@ -15,6 +15,7 @@ class World:
     truckNames = ['Transit', 'TIR']
     truckCapacities = [10, 20]
     truckRates = [1.1, 2.0]
+    truckLimits = [1, 4]
     trucks = range(len(truckNames))
 
     capacity = 20
@@ -67,6 +68,9 @@ class World:
           if (i != routeIn) & (i != routeOut):
             for ti in trucks:
               model.addConstr(t[i,routeOut,ti] * x[routeIn,i] == t[routeIn,i,ti] * x[i,routeOut])
+
+    for ti in trucks:
+      model.addConstr(quicksum(t[0, i, ti]for i in clients) <= truckLimits[ti])
 
     model.optimize()
 
