@@ -75,12 +75,20 @@ class World:
     # Palettes per client don't exceed truck capacity
     for i in clients:
       capacity = quicksum(
-        self.t[j, k, ti] * self.trucks['capacities'][ti]
+        self.t[j, i, ti] * self.trucks['capacities'][ti]
+        for ti in trucksRg
+        for j in sites
+        if i != j
+      )
+      self.model.addConstr(self.u[i] <= capacity + (self.demands[i - 1] - capacity) * self.x[0, i])
+
+    for i in clients:
+      capacity = quicksum(
+        self.t[k, i, ti] * self.trucks['capacities'][ti]
         for ti in trucksRg
         for k in sites
         if i != k
       )
-      self.model.addConstr(self.u[i] <= capacity + (self.demands[i - 1] - capacity) * self.x[0, i])
       for j in clients:
         if i != j:
           self.model.addConstr(self.u[i] - self.u[j] + capacity * self.x[i, j] <= capacity - self.demands[j - 1])
