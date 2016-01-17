@@ -7,7 +7,7 @@ importer = Importer('demo', '')
 
 data = importer.process()
 
-world = World(data['cities'],  data['demands'], data['distances'])
+world = World(data['cities'], data['demands'], data['distances'], data['fleet'])
 world.compute()
 
 serializer = Serializer(world)

@@ -5,19 +5,12 @@ import StringIO
 import sys
 
 class World:
-  def __init__(self, cities, demands, distances):
+  def __init__(self, cities, demands, distances, fleet):
     # WORLD DEFINITION
     self.cities = cities
     self.demands = demands
     self.distances = distances
-
-    self.trucks = {
-      'names': ['Transit#1', 'Transit#2', 'Transit#3', 'Transit#4', 'TIR#1', 'TIR#2'],
-      'maxDeliveryPoints': [20, 20, 20, 20, 3, 3],
-      'maxDailyDistance': [200, 200, 200, 200, 500, 500],
-      'capacities': [10, 10, 10, 10, 20, 20],
-      'rates': [1.1, 1.1, 1.1, 1.1, 2.0, 2.0],
-    }
+    self.trucks = fleet
 
     # DECISION VARIABLES
     # x[i,j] : route (i->j) is used
@@ -43,7 +36,7 @@ class World:
           self.t[i, j, ti] = self.model.addVar(vtype = GRB.BINARY)
 
     for i in clients:
-      self.u[i] = self.model.addVar(lb = self.demands[i - 1], ub = maxCapacity)
+      self.u[i] = self.model.addVar(lb = self.demands[i - 1], ub = maxCapacity, vtype = GRB.INTEGER)
 
     self.model.update()
 
