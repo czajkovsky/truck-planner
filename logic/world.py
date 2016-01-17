@@ -18,6 +18,9 @@ class World:
     self.t = {}
     self.u = {}
 
+    # MODEL
+    self.model = Model('Palette Delivery system')
+
   def compute(self):
     sites = range(len(self.citiesNames))
     clients = sites[1:]
@@ -32,18 +35,16 @@ class World:
 
     capacity = 20
 
-    model = Model('Palette Delivery system')
-
     for i in sites:
       for j in sites:
-        self.x[i, j] = model.addVar(vtype = GRB.BINARY)
+        self.x[i, j] = self.model.addVar(vtype = GRB.BINARY)
         for ti in trucks:
-          self.t[i, j, ti] = model.addVar(vtype = GRB.BINARY)
+          self.t[i, j, ti] = self.model.addVar(vtype = GRB.BINARY)
 
     for i in clients:
-      self.u[i] = model.addVar(lb = self.demands[i - 1], ub = capacity)
+      self.u[i] = self.model.addVar(lb = self.demands[i - 1], ub = capacity)
 
-    model.update()
+    self.model.update()
 
     # OBJECTIVE
     obj = quicksum(
@@ -53,21 +54,21 @@ class World:
       for ti in trucks
       if i != j
     )
-    model.setObjective(obj)
+    self.model.setObjective(obj)
 
     # CONSTRAINT #1 & #2
     # There is only one incoming and one outgoing route per client
     for j in clients:
-      model.addConstr(quicksum(self.x[i, j] for i in sites if i != j) == 1)
+      self.model.addConstr(quicksum(self.x[i, j] for i in sites if i != j) == 1)
 
     for i in clients:
-      model.addConstr(quicksum(self.x[i, j] for j in sites if i != j) == 1)
+      self.model.addConstr(quicksum(self.x[i, j] for j in sites if i != j) == 1)
 
     # CONSTRAINT #3
     # Each existing route has truck assigned
     for i in sites:
       for j in sites:
-        model.addConstr(quicksum(self.t[i, j, ti] for ti in trucks if i != j) == self.x[i,j])
+        self.model.addConstr(quicksum(self.t[i, j, ti] for ti in trucks if i != j) == self.x[i,j])
 
     # CONSTRAINT #4 & #5
     # Palettes per client don't exceed truck capacity
@@ -78,10 +79,10 @@ class World:
         for k in sites
         if i != k
       )
-      model.addConstr(self.u[i] <= capacity + (self.demands[i - 1] - capacity) * self.x[0, i])
+      self.model.addConstr(self.u[i] <= capacity + (self.demands[i - 1] - capacity) * self.x[0, i])
       for j in clients:
         if i != j:
-          model.addConstr(self.u[i] - self.u[j] + capacity * self.x[i, j] <= capacity - self.demands[j - 1])
+          self.model.addConstr(self.u[i] - self.u[j] + capacity * self.x[i, j] <= capacity - self.demands[j - 1])
 
     # CONSTRAINT #7
     # Incomming truck equals outgoing truck
@@ -90,12 +91,12 @@ class World:
         for routeOut in sites:
           if (i != routeIn) & (i != routeOut):
             for ti in trucks:
-              model.addConstr(self.t[i,routeOut,ti] * self.x[routeIn,i] == self.t[routeIn,i,ti] * self.x[i,routeOut])
+              self.model.addConstr(self.t[i,routeOut,ti] * self.x[routeIn,i] == self.t[routeIn,i,ti] * self.x[i,routeOut])
 
     # CONSTRAINT #7
     # Each truck can leave factory only once
     for ti in trucks:
-      model.addConstr(quicksum(self.t[0, i, ti] for i in clients) <= 1)
+      self.model.addConstr(quicksum(self.t[0, i, ti] for i in clients) <= 1)
 
     # CONSTRAINT #8 & #9
     # Don't exceed maximum daily distance and maxiumum delivery points
@@ -114,26 +115,7 @@ class World:
         if j != i
       )
 
-      model.addConstr(distance <= truckMaxDailyDistance[ti])
-      model.addConstr(deliveryPoints <= truckMaxDeliveryPoints[ti])
+      self.model.addConstr(distance <= truckMaxDailyDistance[ti])
+      self.model.addConstr(deliveryPoints <= truckMaxDeliveryPoints[ti])
 
-    model.optimize()
-
-    def printTour(start, visited, distance):
-      sys.stdout.write(self.citiesNames[start] + ' -> ')
-      for i in sites:
-        if (self.x[start, i].X > 0.5) & (start != i):
-          if (i == 0):
-            truckId = -1
-            for ti in trucks:
-              if (self.t[start,i,ti].X > 0.5):
-                truckId = ti
-            totalDistance = distance + self.distances[start][i]
-            print 'FACTORY, distance:', totalDistance, 'TRUCK:', truckNames[truckId], 'COST:', totalDistance * truckRates[truckId]
-            return
-          printTour(i, visited, distance + self.distances[start][i])
-
-    for i in sites:
-      if (self.x[0, i].X > 0.5) & (i != 0):
-        sys.stdout.write('FACTORY' + ' -> ')
-        printTour(i, [], self.distances[0][i])
+    self.model.optimize()
