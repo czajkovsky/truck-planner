@@ -9,19 +9,29 @@ class Serializer:
 
   def explain(self):
     routes = []
-    for i in range(len(self.world.citiesNames)):
+    for i in range(len(self.world.cities)):
       if (self.world.x[0, i].X > 0.5) & (i != 0):
         routes.append(self.printTour('FACTORY -> ', i, self.world.distances[0][i]))
-    print tabulate(routes, headers = ['Dist', 'Route'])
+    print routes
+    print tabulate(routes, headers = ['DIST', 'COST', 'TRUCK', 'ROUTE'])
 
   def printTour(self, route, start, distance):
-    route = route + self.world.citiesNames[start] + ' -> '
-    for i in range(len(self.world.citiesNames)):
+    route = route + self.world.cities[start] + ' -> '
+    truckId = -1
+    for i in range(len(self.world.cities)):
       if (self.world.x[start, i].X > 0.5) & (start != i):
         if (i == 0):
+          for ti in range(len(self.world.trucks['names'])):
+            if (self.world.t[start, i, ti].X > 0.5):
+              truckId = ti
           totalDistance = distance + self.world.distances[start][i]
-          return [str(totalDistance) + ' km', route + 'FACTORY']
-        self.printTour(route, i, distance)
+          return [
+            str(totalDistance) + ' km',
+            totalDistance * self.world.trucks['rates'][truckId],
+            self.world.trucks['names'][truckId],
+            route + 'FACTORY',
+          ]
+        return self.printTour(route, i, distance)
 
 
 

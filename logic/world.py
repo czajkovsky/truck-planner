@@ -5,10 +5,19 @@ import StringIO
 import sys
 
 class World:
-  def __init__(self, citiesNames, demands, distances):
-    self.citiesNames = citiesNames
+  def __init__(self, cities, demands, distances):
+    # WORLD DEFINITION
+    self.cities = cities
     self.demands = demands
     self.distances = distances
+
+    self.trucks = {
+      'names': ['Transit#1', 'Transit#2', 'Transit#3', 'Transit#4', 'TIR#1', 'TIR#2'],
+      'maxDeliveryPoints': [20, 20, 20, 20, 3, 3],
+      'maxDailyDistance': [200, 200, 200, 200, 500, 500],
+      'capacities': [10, 10, 10, 10, 20, 20],
+      'rates': [1.1, 1.1, 1.1, 1.1, 2.0, 2.0],
+    }
 
     # DECISION VARIABLES
     # x[i,j] : route (i->j) is used
@@ -22,36 +31,28 @@ class World:
     self.model = Model('Palette Delivery system')
 
   def compute(self):
-    sites = range(len(self.citiesNames))
+    sites = range(len(self.cities))
     clients = sites[1:]
-
-    truckNames = ['Transit#1', 'Transit#2', 'Transit#3', 'Transit#4', 'TIR#1', 'TIR#2']
-    truckMaxDeliveryPoints = [20, 20, 20, 20, 3, 3]
-    truckMaxDailyDistance = [200, 200, 200, 200, 500, 500]
-    truckCapacities = [10, 10, 10, 10, 20, 20]
-    truckRates = [1.1, 1.1, 1.1, 1.1, 2.0, 2.0]
-
-    trucks = range(len(truckNames))
-
-    capacity = 20
+    trucksRg = range(len(self.trucks['names']))
+    maxCapacity = 20
 
     for i in sites:
       for j in sites:
         self.x[i, j] = self.model.addVar(vtype = GRB.BINARY)
-        for ti in trucks:
+        for ti in trucksRg:
           self.t[i, j, ti] = self.model.addVar(vtype = GRB.BINARY)
 
     for i in clients:
-      self.u[i] = self.model.addVar(lb = self.demands[i - 1], ub = capacity)
+      self.u[i] = self.model.addVar(lb = self.demands[i - 1], ub = maxCapacity)
 
     self.model.update()
 
     # OBJECTIVE
     obj = quicksum(
-      self.distances[i][j] * self.x[i,j] * self.t[i, j, ti] * truckRates[ti]
+      self.distances[i][j] * self.x[i,j] * self.t[i, j, ti] * self.trucks['rates'][ti]
       for i in sites
       for j in sites
-      for ti in trucks
+      for ti in trucksRg
       if i != j
     )
     self.model.setObjective(obj)
@@ -68,14 +69,14 @@ class World:
     # Each existing route has truck assigned
     for i in sites:
       for j in sites:
-        self.model.addConstr(quicksum(self.t[i, j, ti] for ti in trucks if i != j) == self.x[i,j])
+        self.model.addConstr(quicksum(self.t[i, j, ti] for ti in trucksRg if i != j) == self.x[i,j])
 
     # CONSTRAINT #4 & #5
     # Palettes per client don't exceed truck capacity
     for i in clients:
       capacity = quicksum(
-        self.t[j, k, ti] * truckCapacities[ti]
-        for ti in trucks
+        self.t[j, k, ti] * self.trucks['capacities'][ti]
+        for ti in trucksRg
         for k in sites
         if i != k
       )
@@ -90,17 +91,17 @@ class World:
       for routeIn in sites:
         for routeOut in sites:
           if (i != routeIn) & (i != routeOut):
-            for ti in trucks:
+            for ti in trucksRg:
               self.model.addConstr(self.t[i,routeOut,ti] * self.x[routeIn,i] == self.t[routeIn,i,ti] * self.x[i,routeOut])
 
     # CONSTRAINT #7
     # Each truck can leave factory only once
-    for ti in trucks:
+    for ti in trucksRg:
       self.model.addConstr(quicksum(self.t[0, i, ti] for i in clients) <= 1)
 
     # CONSTRAINT #8 & #9
     # Don't exceed maximum daily distance and maxiumum delivery points
-    for ti in trucks:
+    for ti in trucksRg:
       distance = quicksum(
         self.t[i, j, ti] * self.x[i,j] * self.distances[i][j]
         for i in sites
@@ -115,7 +116,7 @@ class World:
         if j != i
       )
 
-      self.model.addConstr(distance <= truckMaxDailyDistance[ti])
-      self.model.addConstr(deliveryPoints <= truckMaxDeliveryPoints[ti])
+      self.model.addConstr(distance <= self.trucks['maxDailyDistance'][ti])
+      self.model.addConstr(deliveryPoints <= self.trucks['maxDeliveryPoints'][ti])
 
     self.model.optimize()
