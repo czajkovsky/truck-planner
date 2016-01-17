@@ -15,6 +15,8 @@ import os
 class FleetTypesImporter:
   def __init__(self, path):
     self.path = os.path.join(os.path.dirname(__file__), path)
+
+  def process(self, count):
     self.trucks = {
       'names': [],
       'count': [],
@@ -23,14 +25,12 @@ class FleetTypesImporter:
       'capacities': [],
       'rates': [],
     }
-
-  def process(self):
     with open(self.path, 'rb') as file:
       reader = csv.reader(file, delimiter = ';')
       file.next()
       for row in reader:
         self.trucks['names'].append(row[0]),
-        self.trucks['count'].append(int(row[1])),
+        self.trucks['count'].append(int(row[1]) / count),
         self.trucks['capacities'].append(int(row[2]))
         self.trucks['rates'].append(float(row[3].replace(',', '.')))
         self.trucks['maxDailyDistances'].append(int(row[6]))

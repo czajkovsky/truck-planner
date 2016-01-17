@@ -20,4 +20,4 @@ class DistancesImporter:
         try:
           self.distances[cities.index(row[0])][cities.index(row[1])] = float(row[2].replace(',', '.'))
         except (ValueError,IndexError):
-          print '[route removed]', row[0], '->', row[1]
+          None

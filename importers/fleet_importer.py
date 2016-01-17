@@ -23,7 +23,7 @@ class FleetImporter:
       'rates': [],
     }
 
-  def process(self):
+  def process(self, count):
     truckTypes = []
     with open(self.path, 'rb') as file:
       reader = csv.reader(file, delimiter = ';')
@@ -31,7 +31,7 @@ class FleetImporter:
       for row in reader:
         truckTypes.append({
           'name': row[0],
-          'count': int(row[1]),
+          'count': int(row[1]) / count,
           'capacity': int(row[2]),
           'rate': float(row[3].replace(',', '.')),
           'maxDailyDistance': int(row[6]),

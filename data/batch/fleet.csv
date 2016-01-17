@@ -1,0 +1,9 @@
+Type;Avialable count;Capacity;Price for 1km;Time lading (min);Time unlading (min);Maks daily distance;Price for distance < 100km (lump sum);Max delivery points;Cost unlading
+TYP_035CF;20;6;1,02;40;20;900;110;6;10,95
+TYP_100CF_01;20;11;1,67;40;20;900;240;4;14,24
+TYP_100CF_02;20;12;1,67;40;20;900;240;4;14,24
+TYP_120CF;40;15;1,75;40;20;900;240;4;15,33
+TYP_160CF;40;17;2,02;40;20;900;240;4;16,43
+TYP_190CF;40;19;2,18;40;20;900;240;4;17,52
+TYP_260CF;40;21;2,4;40;20;900;240;4;18,62
+TYP_TR+SEMCF;20;33;2,55;60;20;800;440;3;19,71
