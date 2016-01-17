@@ -11,5 +11,8 @@ class DemandsImporter:
       reader = csv.reader(file, delimiter = ';')
       file.next()
       for row in reader:
-        self.demands[cities.index(row[0])] = int(row[1])
+        try:
+          self.demands[cities.index(row[0])] = int(row[1])
+        except (ValueError,IndexError):
+          print '[demand removed]'
     return self.demands
