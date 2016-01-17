@@ -24,8 +24,13 @@ class World:
 
     model = Model('Diesel Fuel Delivery')
 
-    x = {} # communication from i -> j
-    t = {} # truck t on route i->j t[t,j,ti]
+    # DECISION VARIABLES
+    # x[i,j] : route (i->j) is used
+    # t[i,j,ti] : truck ti is used on route (i->j)
+    # u[i] : palettes for client i
+    x = {}
+    t = {}
+    u = {}
 
     for i in sites:
       for j in sites:
@@ -33,28 +38,33 @@ class World:
         for ti in trucks:
           t[i, j, ti] = model.addVar(vtype = GRB.BINARY)
 
-    u = {}
     for i in clients:
       u[i] = model.addVar(lb = self.demands[i - 1], ub = capacity)
 
     model.update()
 
+    # OBJECTIVE
     obj = quicksum(
       self.distances[i][j] * x[i,j] * t[i, j, ti] * truckRates[ti] for i in sites for j in sites for ti in trucks if i != j
     )
-
     model.setObjective(obj)
 
+    # CONSTRAINT #1 & #2
+    # There is only one incoming and one outgoing route per client
     for j in clients:
       model.addConstr(quicksum(x[i, j] for i in sites if i != j) == 1)
 
     for i in clients:
       model.addConstr(quicksum(x[i, j] for j in sites if i != j) == 1)
 
+    # CONSTRAINT #3
+    # Each existing route has truck assigned
     for i in sites:
       for j in sites:
         model.addConstr(quicksum(t[i, j, ti] for ti in trucks if i != j) == x[i,j])
 
+    # CONSTRAINT #4 & #5
+    # Palettes per client don't exceed truck capacity
     for i in clients:
       c = quicksum(t[j, i, ti] * truckCapacities[ti] for ti in trucks for j in sites if i != j)
       model.addConstr(u[i] <= c + (self.demands[i - 1] - c) * x[0, i])
@@ -65,6 +75,8 @@ class World:
         if i != j:
           model.addConstr(u[i] - u[j] + c * x[i, j] <= c - self.demands[j - 1])
 
+    # CONSTRAINT #7
+    # Incomming truck equals outgoing truck
     for i in clients:
       for routeIn in sites:
         for routeOut in sites:
@@ -72,9 +84,13 @@ class World:
             for ti in trucks:
               model.addConstr(t[i,routeOut,ti] * x[routeIn,i] == t[routeIn,i,ti] * x[i,routeOut])
 
+    # CONSTRAINT #7
+    # Each truck can leave factory only once
     for ti in trucks:
       model.addConstr(quicksum(t[0, i, ti] for i in clients) <= 1)
 
+    # CONSTRAINT #8 & #9
+    # Don't exceed maximum daily distance and maxiumum delivery points
     for ti in trucks:
       model.addConstr(quicksum(t[i, j, ti] * x[i,j] * self.distances[i][j] for i in sites for j in sites if j != i) <= truckMaxDailyDistance[ti])
       model.addConstr(quicksum(t[i, j, ti] for i in clients for j in clients if j != i) <= truckMaxDeliveryPoints[ti])
