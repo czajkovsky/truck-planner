@@ -2,15 +2,19 @@ from clients_importer import ClientsImporter
 from demands_importer import DemandsImporter
 from distances_importer import DistancesImporter
 from fleet_importer import FleetImporter
+from fleet_types_importer import FleetTypesImporter
 
 class Importer:
-  def __init__(self, model, ordersVersion, factoryKey):
+  def __init__(self, model, ordersVersion, factoryKey, simple):
     path = ' ' + model + '/'
     self.factoryKey = factoryKey
     self.clientsImp = ClientsImporter("../data/{0}/{1}.csv".format(model, 'distances'), factoryKey)
     self.demandsImp = DemandsImporter("../data/{0}/{1}{2}.csv".format(model, 'orders', ordersVersion))
     self.distancesImp = DistancesImporter("../data/{0}/{1}.csv".format(model, 'distances'))
-    self.fleetImp = FleetImporter("../data/{0}/{1}.csv".format(model, 'fleet'))
+    if simple:
+      self.fleetImp = FleetTypesImporter("../data/{0}/{1}.csv".format(model, 'fleet'))
+    else:
+      self.fleetImp = FleetImporter("../data/{0}/{1}.csv".format(model, 'fleet'))
 
   def process(self):
     cities = [self.factoryKey]
