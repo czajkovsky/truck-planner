@@ -23,7 +23,7 @@ class World:
     # MODEL
     self.model = Model('Palette Delivery system')
 
-  def compute(self):
+  def compute(self, simpleMode):
     sites = range(len(self.cities))
     clients = sites[1:]
     trucksRg = range(len(self.trucks['names']))
@@ -86,7 +86,7 @@ class World:
         if i != j:
           self.model.addConstr(self.u[i] - self.u[j] + capacity * self.x[i, j] <= capacity - self.demands[j - 1])
 
-    # CONSTRAINT #7
+    # CONSTRAINT #6
     # Incomming truck equals outgoing truck
     for i in clients:
       for routeIn in sites:
@@ -95,27 +95,34 @@ class World:
             for ti in trucksRg:
               self.model.addConstr(self.t[i,routeOut,ti] * self.x[routeIn,i] == self.t[routeIn,i,ti] * self.x[i,routeOut])
 
-    # CONSTRAINT #7
-    # Each truck can leave factory only once
-    for ti in trucksRg:
-      self.model.addConstr(quicksum(self.t[0, i, ti] for i in clients) <= 1)
+    if simpleMode:
+      # CONSTRAINT #7
+      # Don't use more trucks that you have
+      for ti in trucksRg:
+        self.model.addConstr(quicksum(self.t[0, i, ti] for i in clients) <= self.trucks['count'][ti])
 
-    # CONSTRAINT #8 & #9
-    # Don't exceed maximum daily distance and maxiumum delivery points
-    for ti in trucksRg:
-      distance = quicksum(
-        self.t[i, j, ti] * self.x[i,j] * self.distances[i][j]
-        for i in sites
-        for j in sites
-        if j != i
-      )
+    else:
+      # CONSTRAINT #8
+      # Each truck can leave factory only once
+      for ti in trucksRg:
+        self.model.addConstr(quicksum(self.t[0, i, ti] for i in clients) <= 1)
 
-      deliveryPoints = quicksum(
-        self.t[i, j, ti]
-        for i in clients
-        for j in clients
-        if j != i
-      )
+      # CONSTRAINT #9 & #10
+      # Don't exceed maximum daily distance and maxiumum delivery points
+      for ti in trucksRg:
+        distance = quicksum(
+          self.t[i, j, ti] * self.x[i,j] * self.distances[i][j]
+          for i in sites
+          for j in sites
+          if j != i
+        )
+
+        deliveryPoints = quicksum(
+          self.t[i, j, ti]
+          for i in clients
+          for j in clients
+          if j != i
+        )
 
       self.model.addConstr(distance <= self.trucks['maxDailyDistance'][ti])
       self.model.addConstr(deliveryPoints <= self.trucks['maxDeliveryPoints'][ti])

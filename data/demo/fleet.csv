@@ -1,3 +1,3 @@
 Type;Avialable count;Capacity;Price for 1km;Time lading (min);Time unlading (min);Maks daily distance;Price for distance < 100km (lump sum);Max delivery points;Cost unlading
 TIR;2;20;2,00;40;20;900;110;6;10,95
-TRANSIT;5;10;1,67;40;20;900;240;4;14,24
+TRANSIT;1;10;1,67;40;20;900;240;4;14,24
