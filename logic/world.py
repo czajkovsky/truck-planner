@@ -29,9 +29,6 @@ class World:
         x[i, j] = model.addVar(vtype = GRB.BINARY)
         for k in trucks:
           t[i, j, k] = model.addVar(vtype = GRB.BINARY)
-
-    print t
-
     u = {}
     for i in clients:
       u[i] = model.addVar(lb = self.demands[i - 1], ub = capacity)
@@ -42,7 +39,6 @@ class World:
       self.distances[i][j] * x[i,j] * t[i, j, ti] * truckRates[ti] for i in sites for j in sites for ti in trucks if i != j
     )
 
-    print obj;
     model.setObjective(obj)
 
     for j in clients:
@@ -56,21 +52,21 @@ class World:
         model.addConstr(quicksum(t[i, j, ti] for ti in trucks if i != j) == x[i,j])
 
     for i in clients:
-      model.addConstr(u[i] <= capacity + (self.demands[i - 1] - capacity) * x[0, i])
+      c = quicksum(t[j, i, ti] * truckCapacities[ti] for ti in trucks for j in sites if i != j)
+      model.addConstr(u[i] <= c + (self.demands[i - 1] - c) * x[0, i])
 
     for i in clients:
+      c = quicksum(t[k, i, ti] * truckCapacities[ti] for ti in trucks for k in sites if i != k)
       for j in clients:
         if i != j:
-          c = quicksum(t[0, i, ti] * truckCapacities[ti] for ti in trucks)
           model.addConstr(u[i] - u[j] + c * x[i, j] <= c - self.demands[j - 1])
 
     for i in clients:
-      for j in clients:
-        if i != j:
-          model.addConstr(u[i] * x[i, j] <= quicksum(t[i, 0, ti] * truckCapacities[ti] for ti in trucks))
-          model.addConstr(u[i] * x[j, i] <= quicksum(t[i, 0, ti] * truckCapacities[ti] for ti in trucks))
-      model.addConstr(u[i] * x[i, 0] <= quicksum(t[i, 0, ti] * truckCapacities[ti] for ti in trucks))
-      model.addConstr(u[i] * x[0, i] <= quicksum(t[0, i, ti] * truckCapacities[ti] for ti in trucks))
+      for routeIn in sites:
+        for routeOut in sites:
+          if (i != routeIn) & (i != routeOut):
+            for ti in trucks:
+              model.addConstr(t[i,routeOut,ti] * x[routeIn,i] == t[routeIn,i,ti] * x[i,routeOut])
 
     model.optimize()
 
@@ -83,7 +79,8 @@ class World:
             for ti in trucks:
               if (t[start,i,ti].X > 0.5):
                 truckId = ti
-            print 'FACTORY, distance:', distance + self.distances[start][i], 'TRUCK:', truckNames[truckId]
+            totalDistance = distance + self.distances[start][i]
+            print 'FACTORY, distance:', totalDistance, 'TRUCK:', truckNames[truckId], 'COST:', totalDistance * truckRates[truckId]
             return
           printTour(i, visited, distance + self.distances[start][i])
 
