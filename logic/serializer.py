@@ -11,49 +11,25 @@ class Serializer:
     routes = []
     for i in range(len(self.world.cities)):
       if (self.world.x[0, i].X > 0.5) & (i != 0):
-        routes.append(self.printTour('FACTORY -> ', i, self.world.distances[0][i]))
-    print routes
-    print tabulate(routes, headers = ['DIST', 'COST', 'TRUCK', 'ROUTE'])
+        routes.append(self.printTour('FACTORY -> ', i, self.world.distances[0][i], 0))
+    print tabulate(routes, headers = ['DIST', 'COST', 'TRUCK', 'PALETTES', 'ROUTE'])
 
-  def printTour(self, route, start, distance):
+  def printTour(self, route, start, distance, demand):
     route = route + self.world.cities[start] + ' -> '
+    demand += self.world.demands[start - 1]
     truckId = -1
     for i in range(len(self.world.cities)):
       if (self.world.x[start, i].X > 0.5) & (start != i):
+        totalDistance = distance + self.world.distances[start][i]
         if (i == 0):
           for ti in range(len(self.world.trucks['names'])):
             if (self.world.t[start, i, ti].X > 0.5):
               truckId = ti
-          totalDistance = distance + self.world.distances[start][i]
           return [
             str(totalDistance) + ' km',
             totalDistance * self.world.trucks['rates'][truckId],
             self.world.trucks['names'][truckId],
-            route + 'FACTORY',
+            demand,
+            route + 'FACTORY'
           ]
-        return self.printTour(route, i, distance)
-
-
-
-
-
-
-
-# def printTour(start, visited, distance):
-#       sys.stdout.write(self.citiesNames[start] + ' -> ')
-#       for i in sites:
-#         if (self.x[start, i].X > 0.5) & (start != i):
-#           if (i == 0):
-#             truckId = -1
-#             for ti in trucks:
-#               if (self.t[start,i,ti].X > 0.5):
-#                 truckId = ti
-#             totalDistance = distance + self.distances[start][i]
-#             print 'FACTORY, distance:', totalDistance, 'TRUCK:', truckNames[truckId], 'COST:', totalDistance * truckRates[truckId]
-#             return
-#           printTour(i, visited, distance + self.distances[start][i])
-
-#     for i in sites:
-#       if (self.x[0, i].X > 0.5) & (i != 0):
-#         sys.stdout.write('FACTORY' + ' -> ')
-#         printTour(i, [], self.distances[0][i])
+        return self.printTour(route, i, totalDistance, demand)
