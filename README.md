@@ -23,7 +23,7 @@ python batch.py
 
 ## Configuration
 Inside batch.py you can find some configuration variables:
-* `SIMPLE_MODE`
+* `SIMPLE_MODE` - max delivery points and max daily distance is not taken into account
 * `BATCHES_SIZE`
 
 ## Input
