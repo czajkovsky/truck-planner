@@ -180,7 +180,7 @@ Before starting any computations data is processed:
 There three decision variables:
 * `x[i, j]` (type: `GRB.BINARY`) - route (`i` -> `j`) is used
 * `t[i, j, ti]` (type: `GRB.BINARY`) - truck `ti` is used on route (`i` -> `j`)
-* `u[i]` (type: `GRB.INETGER`) - palettes for client `i`
+* `u[i]` (type: `GRB.INTEGER`) - palettes for client `i`
 
 ### Objective
 Our goal is to minimize transporation costs
@@ -208,7 +208,8 @@ All constraints are defined in [world.py](https://github.com/czajkovsky/vrp/blob
 ### Results
 Code was tested on MacBook Pro (13' Mid 2014; 2,8 GHz Intel Core i5; 16GB RAM). It was tested for multiple batch size for world instance which consists of
 * **130** demands (**964** palettes)
-* **8742** routes between **93** cities and fleet **152** trucks of **8** types
+* **8742** routes between **93** cities
+* **152** trucks of **8** types
 
 | Batch size | Result     | Duration | Batches count |
 | ---------- | ---------- | -------- | ------------- |
