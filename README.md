@@ -206,6 +206,12 @@ All constraints are defined in [world.py](https://github.com/czajkovsky/vrp/blob
 7. Don't exceed maximum daily distance and maxiumum delivery points (if in advanced mode).
 
 ### Results
-Code was tested on MacBook Pro (13` Mid 2014; 2,8 GHz Intel Core i5; 16GB RAM).
+Code was tested on MacBook Pro (13' Mid 2014; 2,8 GHz Intel Core i5; 16GB RAM). It was tested for multiple batch size for world instance which consists of
+* **130** demands (**964** palettes)
+* **8742** routes between **93** cities and fleet **152** trucks of **8** types
 
-Code was tested for multiple batch size for world instance which consists of `130` demands (`964` palettes), `8742` routes between `93` cities and fleet `152` trucks of `8` types
+| Batch size | Result     | Duration | Batches count |
+| ---------- | ---------- | -------- | ------------- |
+| 5          | 44180.4452 | 95.01s   | 15            |
+| 6          | 43376.5586 | 169.97s  | 13            |
+| 7          | xx         | xx       | 11            |
