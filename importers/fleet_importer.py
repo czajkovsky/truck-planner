@@ -2,12 +2,8 @@
 # 1 Avialable count;
 # 2 Capacity;
 # 3 Price for 1km;
-# 4 Time lading (min);
-# 5 Time unlading (min);
-# 6 Maks daily distance;
-# 7 Price for distance < 100km (lump sum);
-# 8 Max delivery points;
-# 9 Cost unlading
+# 4 Maks daily distance;
+# 5 Max delivery points;
 
 import csv
 import os
@@ -34,9 +30,8 @@ class FleetImporter:
           'count': int(row[1]) / count,
           'capacity': int(row[2]),
           'rate': float(row[3].replace(',', '.')),
-          'maxDailyDistance': int(row[6]),
-          'maxDeliveryPoints': int(row[8]),
-          'lumpSum': float(row[7].replace(',', '.'))
+          'maxDailyDistance': int(row[4]),
+          'maxDeliveryPoints': int(row[5])
         })
 
     for type in truckTypes:
