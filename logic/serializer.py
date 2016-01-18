@@ -19,10 +19,8 @@ class Serializer:
     for route in routes:
       totalCost += route[2]
       totalPalettes += route[4]
-    print '\n\n===========\nTotal cost:'
-    print totalCost
-    print '\n\n===========\nPalettes delivered:'
-    print totalPalettes
+    print '\n\n===========\n* Total cost:\n    {0}'.format(totalCost)
+    print '* Palettes delivered:\n    {0}'.format(totalPalettes)
 
   def printTour(self, wid, world, route, start, distance, demand):
     route = route + world.cities[start] + ' -> '
@@ -59,10 +57,16 @@ class Serializer:
             trucks[ti] -= 1
     return trucks
 
-  def listCities(self, cities):
+  def listCities(self, cities, demands):
     print "PROCESSING {0} CITIES".format(len(cities))
-    for city in cities:
-      print city
+    citiesList = []
+    for i in range(len(cities)):
+      citiesList.append([
+        cities[i],
+        demands[i - 1]
+      ])
+    print tabulate(citiesList, headers = ['NAME', 'DEMAND'])
+    print ''
 
   def listFleet(self, fleet):
     trucks = []
@@ -73,4 +77,4 @@ class Serializer:
         fleet['capacities'][i]
       ])
     print tabulate(trucks, headers = ['NAME', 'COUNT', 'CAPACITY'])
-
+    print ''

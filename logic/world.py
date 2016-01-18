@@ -28,6 +28,19 @@ class World:
     clients = sites[1:]
     trucksRg = range(len(self.trucks['names']))
 
+
+    allCapacities = []
+    demandsCp = list(self.demands)
+    for ti in trucksRg:
+      for i in range(self.trucks['count'][ti]):
+        allCapacities.append(self.trucks['capacities'][ti])
+    allCapacities.sort(reverse = True)
+    demandsCp.sort(reverse = True)
+
+    for i in range(len(demandsCp)):
+      if demandsCp[i] > allCapacities[i]:
+        return -1;
+
     maxCapacity = max(self.demands)
 
     for i in sites:
@@ -128,4 +141,5 @@ class World:
       self.model.addConstr(distance <= self.trucks['maxDailyDistance'][ti])
       self.model.addConstr(deliveryPoints <= self.trucks['maxDeliveryPoints'][ti])
 
+    self.model.setParam(GRB.Param.TimeLimit, 1200.0)
     self.model.optimize()

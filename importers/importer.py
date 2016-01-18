@@ -32,7 +32,6 @@ class Importer:
     allDemands = export['demands']
     clients = export['cities']
 
-
     count = 0
     for i in range(len(clients)):
       if allDemands[i] > 0:
