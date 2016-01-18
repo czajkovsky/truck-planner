@@ -28,7 +28,10 @@ class Importer:
 
     clients = self.clientsImp.process()
 
-    allDemands = self.demandsImp.process(clients)
+    export = self.demandsImp.process(clients)
+    allDemands = export['demands']
+    clients = export['cities']
+
 
     count = 0
     for i in range(len(clients)):
@@ -36,8 +39,12 @@ class Importer:
         count += 1
 
     batchSizes = [self.batchSize] * (count / self.batchSize)
-    for i in range(count % self.batchSize):
-      batchSizes[(count / self.batchSize) - i - 1] += 1
+    itemsLeft = count % self.batchSize
+    if itemsLeft > len(batchSizes):
+      batchSizes.append(itemsLeft)
+    else:
+      for i in range(count % self.batchSize):
+        batchSizes[(count / self.batchSize) - i - 1] += 1
 
     batchCount = 0
     count = 0

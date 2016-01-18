@@ -8,8 +8,6 @@ class DistancesImporter:
   def process(self, cities):
     self.distances = [[-1 for x in range(len(cities))] for x in range(len(cities))]
     self.assignDistances(cities)
-    for i in range(len(cities)):
-      self.distances[i][i] = 0.0
     return self.distances
 
   def assignDistances(self, cities):
@@ -18,6 +16,26 @@ class DistancesImporter:
       file.next()
       for row in reader:
         try:
-          self.distances[cities.index(row[0])][cities.index(row[1])] = float(row[2].replace(',', '.'))
+          fromIndexes = []
+          toIndexes = []
+          for i in range(len(cities)):
+            if cities[i].startswith(row[0]):
+              fromIndexes.append(i)
+            if cities[i].startswith(row[1]):
+              toIndexes.append(i)
+
+          if (len(toIndexes) > 0) & (len(fromIndexes) > 0):
+            for i in fromIndexes:
+              for j in fromIndexes:
+                self.distances[i][j] = 0.0
+
+            for i in toIndexes:
+              for j in toIndexes:
+                self.distances[i][j] = 0.0
+
+            for fromInd in fromIndexes:
+              for toInd in toIndexes:
+                self.distances[fromInd][toInd] = float(row[2].replace(',', '.'))
+
         except (ValueError,IndexError):
           None

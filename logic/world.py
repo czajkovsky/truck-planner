@@ -27,7 +27,8 @@ class World:
     sites = range(len(self.cities))
     clients = sites[1:]
     trucksRg = range(len(self.trucks['names']))
-    maxCapacity = 20
+
+    maxCapacity = max(self.demands)
 
     for i in sites:
       for j in sites:

@@ -9,7 +9,7 @@ def calculateFleet(fleet, inheritedFleet):
   return fleet
 
 SIMPLE_MODE = True
-BATCHES_SIZE = 5
+BATCHES_SIZE = 6
 
 start = time.time()
 
@@ -20,8 +20,8 @@ timers = {
 }
 
 # importer = Importer('demo', '', 'FACTORY', SIMPLE_MODE, BATCHES_SIZE)
-# importer = Importer('main', '-2013-02-01', 'DC', SIMPLE_MODE, BATCHES_SIZE)
-importer = Importer('batch', '-debug', 'DC', SIMPLE_MODE, BATCHES_SIZE)
+importer = Importer('main', '-2013-02-01', 'DC', SIMPLE_MODE, BATCHES_SIZE)
+# importer = Importer('batch', '-debug', 'DC', SIMPLE_MODE, BATCHES_SIZE)
 data = importer.process()
 
 serializer = Serializer()
