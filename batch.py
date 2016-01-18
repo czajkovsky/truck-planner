@@ -9,27 +9,14 @@ def calculateFleet(fleet, inheritedFleet):
   return fleet
 
 SIMPLE_MODE = True
-BATCHES_SIZE = 5
+BATCHES_SIZE = 6
 
-# importer = Importer('demo', '', 'FACTORY', SIMPLE_MODE, BATCHES_SIZE)
-# importer = Importer('batch', '-debug', 'DC', SIMPLE_MODE, BATCHES_SIZE)
-# importer = Importer('demo', '', 'FACTORY', SIMPLE_MODE, BATCHES_SIZE)
-importer = Importer('main', '-2013-02-01', 'DC', SIMPLE_MODE, BATCHES_SIZE)
-# importer = Importer('main', '-2013-02-02', 'DC', SIMPLE_MODE, BATCHES_SIZE)
-# importer = Importer('main', '-2013-02-04', 'DC', SIMPLE_MODE, BATCHES_SIZE)
-# importer = Importer('main', '-2013-02-05', 'DC', SIMPLE_MODE, BATCHES_SIZE)
-# importer = Importer('main', '-2013-02-06', 'DC', SIMPLE_MODE, BATCHES_SIZE)
-# importer = Importer('main', '-2013-02-07', 'DC', SIMPLE_MODE, BATCHES_SIZE)
-# importer = Importer('main', '-2013-02-08', 'DC', SIMPLE_MODE, BATCHES_SIZE)
-# importer = Importer('main', '-2013-02-09', 'DC', SIMPLE_MODE, BATCHES_SIZE)
-
+importer = Importer('test', '-2013-02-01', 'DC', SIMPLE_MODE, BATCHES_SIZE)
 data = importer.process()
-
 serializer = Serializer()
+batchesToRetry = []
 
 start = time.time()
-
-batchesToRetry = []
 
 for i in range(len(data['cities'])):
   print 'BATCH #' + str(i + 1) + ' out of ' + str(len(data['cities']))
