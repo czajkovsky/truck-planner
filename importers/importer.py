@@ -18,6 +18,7 @@ class Importer:
       self.fleetImp = FleetImporter("../data/{0}/{1}.csv".format(model, 'fleet'))
 
   def process(self):
+    batchSizes = []
     citiesBatches = []
     cities = [self.factoryKey]
     demandsBatches = []
@@ -32,19 +33,32 @@ class Importer:
     count = 0
     for i in range(len(clients)):
       if allDemands[i] > 0:
-        if count + 1 > self.batchSize:
+        count += 1
+
+    batchSizes = [self.batchSize] * (count / self.batchSize)
+    for i in range(count % self.batchSize):
+      batchSizes[(count / self.batchSize) - i - 1] += 1
+
+    batchCount = 0
+    count = 0
+    print batchSizes
+    for i in range(len(clients)):
+      if allDemands[i] > 0:
+        if count + 1 > batchSizes[batchCount]:
           citiesBatches.append(cities)
           demandsBatches.append(demands)
           count = 0
           cities = [self.factoryKey]
           demands = []
+          batchCount += 1
         cities.append(clients[i])
         demands.append(allDemands[i])
         count += 1
 
-    if len(demands) > 0:
-      citiesBatches.append(cities)
-      demandsBatches.append(demands)
+    citiesBatches.append(cities)
+    demandsBatches.append(demands)
+
+    print demandsBatches
 
     self.batchesCount = len(demandsBatches)
 

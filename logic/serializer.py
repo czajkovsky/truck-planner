@@ -43,3 +43,14 @@ class Serializer:
 
   def add(self, world):
     self.worlds.append(world)
+
+  def trucksLeft(self, world):
+    trucks = [0] * len(world.trucks['names'])
+    for ti in range(len(world.trucks['names'])):
+      trucks[ti] = world.trucks['count'][ti]
+    for i in range(len(world.cities)):
+      if (world.x[0, i].X > 0.5) & (i != 0):
+        for ti in range(len(world.trucks['names'])):
+          if (world.t[0, i, ti].X > 0.5):
+            trucks[ti] -= 1
+    return trucks

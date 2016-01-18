@@ -3,6 +3,10 @@ from logic.world import World
 from logic.serializer import Serializer
 import time
 
+def calculateFleet(fleet, inheritedFleet):
+  for i in range(len(fleet['names'])):
+    fleet['count'][i] += inheritedFleet[i]
+  return fleet
 
 SIMPLE_MODE = True
 BATCHES_SIZE = 5
@@ -16,18 +20,21 @@ timers = {
 }
 
 # importer = Importer('demo', '', 'FACTORY', SIMPLE_MODE, BATCHES_SIZE)
-# importer = Importer('main', '-2013-02-01', 'DC', SIMPLE_MODE)
+# importer = Importer('main', '-2013-02-01', 'DC', SIMPLE_MODE, BATCHES_SIZE)
 importer = Importer('batch', '-2013-02-01', 'DC', SIMPLE_MODE, BATCHES_SIZE)
 data = importer.process()
-
-print data['cities'][0]
-print data['fleets'][0]
 
 serializer = Serializer()
 
 for i in range(len(data['cities'])):
   print 'BATCH #' + str(i + 1)
-  world = World(data['cities'][i], data['demands'][i], data['distances'][i], data['fleets'][i])
+  if i > 0:
+    fleet = calculateFleet(data['fleets'][i], serializer.trucksLeft(world))
+    fleet = data['fleets'][i]
+  else:
+    fleet = data['fleets'][i]
+
+  world = World(data['cities'][i], data['demands'][i], data['distances'][i], fleet)
   world.compute(SIMPLE_MODE)
   serializer.add(world)
 
