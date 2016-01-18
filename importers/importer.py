@@ -41,7 +41,6 @@ class Importer:
 
     batchCount = 0
     count = 0
-    print batchSizes
     for i in range(len(clients)):
       if allDemands[i] > 0:
         if count + 1 > batchSizes[batchCount]:
@@ -58,16 +57,11 @@ class Importer:
     citiesBatches.append(cities)
     demandsBatches.append(demands)
 
-    print demandsBatches
-
     self.batchesCount = len(demandsBatches)
 
     for i in range(self.batchesCount):
       distancesBatches.append(self.distancesImp.process(citiesBatches[i]))
       fleetsBatches.append(self.fleetImp.process(self.batchesCount))
-
-    print fleetsBatches
-    print 'FINISHED IMPORTING: {0} cities'.format(len(cities))
 
     return {
       'cities': citiesBatches,

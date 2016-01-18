@@ -14,5 +14,5 @@ class DemandsImporter:
         try:
           self.demands[cities.index(row[0])] = int(row[1])
         except (ValueError,IndexError):
-          print '[demand removed]'
+          None
     return self.demands

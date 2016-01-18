@@ -21,7 +21,7 @@ timers = {
 
 # importer = Importer('demo', '', 'FACTORY', SIMPLE_MODE, BATCHES_SIZE)
 # importer = Importer('main', '-2013-02-01', 'DC', SIMPLE_MODE, BATCHES_SIZE)
-importer = Importer('batch', '-2013-02-01', 'DC', SIMPLE_MODE, BATCHES_SIZE)
+importer = Importer('batch', '-debug', 'DC', SIMPLE_MODE, BATCHES_SIZE)
 data = importer.process()
 
 serializer = Serializer()
@@ -33,6 +33,9 @@ for i in range(len(data['cities'])):
     fleet = data['fleets'][i]
   else:
     fleet = data['fleets'][i]
+
+  serializer.listFleet(data['fleets'][i])
+  serializer.listCities(data['cities'][i])
 
   world = World(data['cities'][i], data['demands'][i], data['distances'][i], fleet)
   world.compute(SIMPLE_MODE)

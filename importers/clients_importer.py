@@ -14,5 +14,4 @@ class ClientsImporter:
       for row in reader:
         if row[0] != self.factoryKey:
           citiesSet.add(row[0])
-    print 'IMPORTED CLIENTS: ' + str(len(list(citiesSet)))
     return list(citiesSet)

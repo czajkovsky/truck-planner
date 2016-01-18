@@ -54,3 +54,18 @@ class Serializer:
           if (world.t[0, i, ti].X > 0.5):
             trucks[ti] -= 1
     return trucks
+
+  def listCities(self, cities):
+    print "PROCESSING {0} CITIES".format(len(cities))
+    for city in cities:
+      print city
+
+  def listFleet(self, fleet):
+    trucks = []
+    for i in range(len(fleet['names'])):
+      trucks.append([
+        fleet['names'][i],
+        fleet['count'][i]
+      ])
+    print tabulate(trucks, headers = ['NAME', 'COUNT'])
+
