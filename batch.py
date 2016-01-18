@@ -20,10 +20,15 @@ timers = {
 importer = Importer('batch', '-2013-02-01', 'DC', SIMPLE_MODE, BATCHES_SIZE)
 data = importer.process()
 
-world = World(data['cities'][0], data['demands'][0], data['distances'][0], data['fleets'][0])
 print data['cities'][0]
 print data['fleets'][0]
-world.compute(SIMPLE_MODE)
 
-serializer = Serializer(world)
+serializer = Serializer()
+
+for i in range(len(data['cities'])):
+  print 'BATCH #' + str(i + 1)
+  world = World(data['cities'][i], data['demands'][i], data['distances'][i], data['fleets'][i])
+  world.compute(SIMPLE_MODE)
+  serializer.add(world)
+
 serializer.explain()

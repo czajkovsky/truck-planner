@@ -4,32 +4,42 @@ import StringIO
 import sys
 
 class Serializer:
-  def __init__(self, world):
-    self.world = world
+  def __init__(self):
+    self.worlds = []
 
   def explain(self):
     routes = []
-    for i in range(len(self.world.cities)):
-      if (self.world.x[0, i].X > 0.5) & (i != 0):
-        routes.append(self.printTour('FACTORY -> ', i, self.world.distances[0][i], 0))
-    print tabulate(routes, headers = ['DIST', 'COST', 'TRUCK', 'PALETTES', 'ROUTE'])
+    for wi in range(len(self.worlds)):
+      for i in range(len(self.worlds[wi].cities)):
+        if (self.worlds[wi].x[0, i].X > 0.5) & (i != 0):
+          routes.append(self.printTour(wi + 1, self.worlds[wi], 'FACTORY -> ', i, self.worlds[wi].distances[0][i], 0))
+    print tabulate(routes, headers = ['BATCH', 'DIST', 'COST', 'TRUCK', 'PALETTES', 'ROUTE'])
+    totalCost = 0
+    for route in routes:
+      totalCost += route[2]
+    print '\n\n===========\nTotal cost:'
+    print totalCost
 
-  def printTour(self, route, start, distance, demand):
-    route = route + self.world.cities[start] + ' -> '
-    demand += self.world.demands[start - 1]
+  def printTour(self, wid, world, route, start, distance, demand):
+    route = route + world.cities[start] + ' -> '
+    demand += world.demands[start - 1]
     truckId = -1
-    for i in range(len(self.world.cities)):
-      if (self.world.x[start, i].X > 0.5) & (start != i):
-        totalDistance = distance + self.world.distances[start][i]
+    for i in range(len(world.cities)):
+      if (world.x[start, i].X > 0.5) & (start != i):
+        totalDistance = distance + world.distances[start][i]
         if (i == 0):
-          for ti in range(len(self.world.trucks['names'])):
-            if (self.world.t[start, i, ti].X > 0.5):
+          for ti in range(len(world.trucks['names'])):
+            if (world.t[start, i, ti].X > 0.5):
               truckId = ti
           return [
+            wid,
             str(totalDistance) + ' km',
-            totalDistance * self.world.trucks['rates'][truckId],
-            self.world.trucks['names'][truckId],
+            totalDistance * world.trucks['rates'][truckId],
+            world.trucks['names'][truckId],
             demand,
             route + 'FACTORY'
           ]
-        return self.printTour(route, i, totalDistance, demand)
+        return self.printTour(wid, world, route, i, totalDistance, demand)
+
+  def add(self, world):
+    self.worlds.append(world)
