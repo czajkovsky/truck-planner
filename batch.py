@@ -9,13 +9,13 @@ def calculateFleet(fleet, inheritedFleet):
   return fleet
 
 SIMPLE_MODE = True
-BATCHES_SIZE = 6
+BATCHES_SIZE = 5
 
-importer = Importer('demo', '', 'FACTORY', SIMPLE_MODE, BATCHES_SIZE)
+# importer = Importer('demo', '', 'FACTORY', SIMPLE_MODE, BATCHES_SIZE)
 # importer = Importer('batch', '-debug', 'DC', SIMPLE_MODE, BATCHES_SIZE)
 # importer = Importer('demo', '', 'FACTORY', SIMPLE_MODE, BATCHES_SIZE)
-# importer = Importer('main', '-2013-02-01', 'DC', SIMPLE_MODE, BATCHES_SIZE)
-importer = Importer('main', '-2013-02-02', 'DC', SIMPLE_MODE, BATCHES_SIZE)
+importer = Importer('main', '-2013-02-01', 'DC', SIMPLE_MODE, BATCHES_SIZE)
+# importer = Importer('main', '-2013-02-02', 'DC', SIMPLE_MODE, BATCHES_SIZE)
 # importer = Importer('main', '-2013-02-04', 'DC', SIMPLE_MODE, BATCHES_SIZE)
 # importer = Importer('main', '-2013-02-05', 'DC', SIMPLE_MODE, BATCHES_SIZE)
 # importer = Importer('main', '-2013-02-06', 'DC', SIMPLE_MODE, BATCHES_SIZE)
