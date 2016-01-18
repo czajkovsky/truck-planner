@@ -37,9 +37,10 @@ class World:
     allCapacities.sort(reverse = True)
     demandsCp.sort(reverse = True)
 
-    for i in range(len(demandsCp)):
-      if demandsCp[i] > allCapacities[i]:
-        return -1;
+    if (len(allCapacities) > len(demandsCp)):
+      for i in range(len(demandsCp)):
+        if demandsCp[i] > allCapacities[i]:
+          return -1;
 
     maxCapacity = max(self.demands)
 
